@@ -521,12 +521,12 @@ public class AuthorizationService {
                     return;
                 }
 
-                try {
-                    idToken.validate(mRequest, mClock);
-                } catch (AuthorizationException ex) {
-                    mCallback.onTokenRequestCompleted(null, ex);
-                    return;
-                }
+//                try {
+//                    idToken.validate(mRequest, mClock);
+//                } catch (AuthorizationException ex) {
+//                    mCallback.onTokenRequestCompleted(null, ex);
+//                    return;
+//                }
             }
             Logger.debug("Token exchange with %s completed",
                     mRequest.configuration.tokenEndpoint);
