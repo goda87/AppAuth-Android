@@ -370,23 +370,27 @@ public class AuthorizationService {
             CustomTabsIntent customTabsIntent) {
         checkNotDisposed();
 
-        if (mBrowser == null) {
-            throw new ActivityNotFoundException();
-        }
 
-        Uri requestUri = request.toUri();
         Intent intent;
-        if (mBrowser.useCustomTab) {
-            intent = customTabsIntent.intent;
-        } else {
-            intent = new Intent(Intent.ACTION_VIEW);
-        }
-        intent.setPackage(mBrowser.packageName);
-        intent.setData(requestUri);
+        Uri requestUri = request.toUri();
 
-        Logger.debug("Using %s as browser for auth, custom tab = %s",
+        if (mBrowser != null) {
+
+            if (mBrowser.useCustomTab) {
+                intent = customTabsIntent.intent;
+            } else {
+                intent = new Intent(Intent.ACTION_VIEW);
+            }
+            intent.setPackage(mBrowser.packageName);
+            intent.setData(requestUri);
+
+            Logger.debug(
+                "Using %s as browser for auth, custom tab = %s",
                 intent.getPackage(),
                 mBrowser.useCustomTab.toString());
+        } else {
+            intent = new Intent(Intent.ACTION_VIEW, requestUri);
+        }
 
         Logger.debug("Initiating authorization request to %s",
                 request.configuration.authorizationEndpoint);
