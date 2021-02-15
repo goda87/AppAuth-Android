@@ -19,7 +19,6 @@ import static net.openid.appauth.Preconditions.checkNotNull;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -549,9 +548,10 @@ public class AuthorizationService {
             intent.setData(requestUri);
 
             Logger.debug(
-                "Using %s as browser for auth, custom tab = %s",
-                intent.getPackage(),
-                mBrowser.useCustomTab.toString());
+                    "Using %s as browser for auth, custom tab = %s",
+                    intent.getPackage(),
+                    mBrowser.useCustomTab.toString()
+            );
         } else {
             intent = new Intent(Intent.ACTION_VIEW, requestUri);
         }
@@ -690,12 +690,12 @@ public class AuthorizationService {
                     return;
                 }
 
-//                try {
-//                    idToken.validate(mRequest, mClock);
-//                } catch (AuthorizationException ex) {
-//                    mCallback.onTokenRequestCompleted(null, ex);
-//                    return;
-//                }
+                /*try {
+                    idToken.validate(mRequest, mClock);
+                } catch (AuthorizationException ex) {
+                    mCallback.onTokenRequestCompleted(null, ex);
+                    return;
+                }*/
             }
             Logger.debug("Token exchange with %s completed",
                     mRequest.configuration.tokenEndpoint);
