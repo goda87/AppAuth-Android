@@ -19,11 +19,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.annotation.ColorInt;
-import android.support.annotation.Nullable;
-import android.support.customtabs.CustomTabsClient;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.customtabs.CustomTabsServiceConnection;
+import androidx.annotation.ColorInt;
+import androidx.annotation.Nullable;
+import androidx.browser.customtabs.CustomTabsClient;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.CustomTabsServiceConnection;
 
 import net.openid.appauth.AppAuthConfiguration.Builder;
 import net.openid.appauth.AuthorizationException.GeneralErrors;
@@ -53,8 +53,8 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static android.support.customtabs.CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE;
-import static android.support.customtabs.CustomTabsIntent.EXTRA_TOOLBAR_COLOR;
+import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE;
+import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_TOOLBAR_COLOR;
 import static net.openid.appauth.AuthorizationManagementActivity.KEY_AUTH_INTENT;
 import static net.openid.appauth.AuthorizationManagementActivity.KEY_AUTH_REQUEST;
 import static net.openid.appauth.AuthorizationManagementActivity.KEY_CANCEL_INTENT;
@@ -70,6 +70,8 @@ import static net.openid.appauth.TestValues.TEST_STATE;
 import static net.openid.appauth.TestValues.getTestAuthCodeExchangeRequest;
 import static net.openid.appauth.TestValues.getTestAuthCodeExchangeRequestBuilder;
 import static net.openid.appauth.TestValues.getTestAuthRequestBuilder;
+import static net.openid.appauth.TestValues.getTestEndSessionRequest;
+import static net.openid.appauth.TestValues.getTestEndSessionRequestBuilder;
 import static net.openid.appauth.TestValues.getTestIdTokenWithNonce;
 import static net.openid.appauth.TestValues.getTestRegistrationRequest;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -158,6 +160,17 @@ public class AuthorizationServiceTest {
     }
 
     @Test
+    public void testEndSessionRequest_withSpecifiedState() throws Exception {
+        EndSessionRequest request = getTestEndSessionRequestBuilder()
+            .setState(TEST_STATE)
+            .build();
+        mService.performEndSessionRequest(request, mPendingIntent);
+        Intent intent = captureAuthRequestIntent();
+        assertRequestIntent(intent, null);
+        assertEquals(request.toUri().toString(), intent.getData().toString());
+    }
+
+    @Test
     public void testAuthorizationRequest_withSpecifiedNonce() throws Exception {
         AuthorizationRequest request = getTestAuthRequestBuilder()
             .setNonce(TEST_NONCE)
@@ -189,10 +202,29 @@ public class AuthorizationServiceTest {
         assertColorMatch(intent, Color.GREEN);
     }
 
+    @Test
+    public void testEndSessionRequest_customization() throws Exception {
+        CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder()
+            .setToolbarColor(Color.GREEN)
+            .build();
+        mService.performEndSessionRequest(
+            getTestEndSessionRequest(),
+            mPendingIntent,
+            customTabsIntent);
+        Intent intent = captureAuthRequestIntent();
+        assertColorMatch(intent, Color.GREEN);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testAuthorizationRequest_afterDispose() throws Exception {
         mService.dispose();
         mService.performAuthorizationRequest(getTestAuthRequestBuilder().build(), mPendingIntent);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testEndSessionRequest_afterDispose() throws Exception {
+        mService.dispose();
+        mService.performEndSessionRequest(getTestEndSessionRequest(), mPendingIntent);
     }
 
     @Test
