@@ -98,6 +98,7 @@ publishing {
     }
 }
 
-//signing {
-//    sign publishing.publications
-//}
+signing {
+    required false
+    sign publishing.publications
+}
